@@ -1,0 +1,71 @@
+body {
+    background-image: url('https://img.freepik.com/premium-photo/technology-concept-abstract-futuristic-dots-lines-connected-together_729149-188087.jpg ');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* Styling the navigation bar */
+.navbar {
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark background */
+    z-index: 1;
+    border-bottom: 1px solid #444; /* Optional: subtle bottom border */
+    text-align: center;
+}
+
+.navbar-brand {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Container with a blurred and more transparent background */
+.image-classifier-container {
+    background: rgba(255, 255, 255, 0.4); /* Slightly more transparent white */
+    backdrop-filter: blur(20px); /* Heavier blur effect */
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 50px auto; /* Center the div container */
+    text-align: center;
+    z-index: 2; /* Ensure it appears above the background */
+}
+
+/* Optional: Image-classifier container button and other elements */
+.btn {
+    margin-top: 20px;
+}
+
+/* Ensuring the full page takes the background */
+html, body {
+    height: 100%;
+}
+
+/* Upload label styling for consistency */
+.upload-label {
+    padding: 12px 30px;
+    background: #39D2B4;
+    color: #fff;
+    font-size: 1em;
+    transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.upload-label:hover {
+    background: #34495E;
+    color: #39D2B4;
+}
+
+/* Styling the uploaded image */
+#uploadedImage {
+    max-width: 100%;
+    margin-top: 1em;
+    border: 2px solid #39D2B4;
+    border-radius: 5px;
+}

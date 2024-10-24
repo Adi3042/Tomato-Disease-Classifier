@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore the New Plant Diseases Dataset(Augmented) folder
+notebooks/New Plant Diseases Dataset(Augmented)
+
 # C extensions
 *.so
 

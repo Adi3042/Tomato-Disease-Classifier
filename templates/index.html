@@ -1,0 +1,32 @@
+{% extends "base.html" %} 
+{% block content %}
+
+<div class="image-classifier-container">
+    <h2>Image Classifier</h2>
+
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <form id="upload-file" method="post" enctype="multipart/form-data" style="text-align: center;">
+            <label for="imageUpload" class="upload-label">
+                <button type="button" class="btn btn-secondary" id="choose-image-btn">Choose an Image</button>
+            </label>
+            <input type="file" name="file" id="imageUpload" accept=".png, .jpg, .jpeg" style="display: none;">
+        </form>
+
+        <div class="image-section" style="display:none; text-align: center; margin-top: 1em;">
+            <img id="uploadedImage" style="display:none; max-width: 224px; margin-top: 1em;" />
+            <div>
+                <button type="button" class="btn btn-primary btn-lg" id="btn-predict" style="margin-top: 1em;">Predict!</button>
+            </div>
+        </div>
+
+        <div class="loader" style="display:none; margin-top: 1em;">
+            <img src="{{ url_for('static', filename='loader.gif') }}" alt="Loading..." style="width: 50px; height: 50px;">
+        </div>
+
+        <h3 id="result" style="text-align: center; margin-top: 1em;">
+            <span></span>
+        </h3>
+    </div>
+</div>
+
+{% endblock %}
