@@ -157,8 +157,6 @@ cython_debug/
 # Ignore the New Plant Diseases Dataset(Augmented) folder
 notebooks/New Plant Diseases Dataset(Augmented)
 
-# Ignore the model_vgg19.h5 file
-model_vgg19.h5
 
 
 # PyCharm
