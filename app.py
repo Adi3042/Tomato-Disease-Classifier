@@ -1,48 +1,54 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 11 22:34:20 2020
-
-@author: Krish Naik
-"""
-
 from __future__ import division, print_function
-# coding=utf-8
 import sys
 import os
-import glob
-import re
 import numpy as np
 import tensorflow as tf
-import tensorflow as tf
 
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
-
-config = ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.2
-config.gpu_options.allow_growth = True
-session = InteractiveSession(config=config)
 # Keras
-from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.applications.vgg16 import preprocess_input, VGG16
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-
-# Flask utils
-from flask import Flask, redirect, url_for, request, render_template
+from tensorflow.keras.utils import get_custom_objects
+from flask import Flask, request, render_template, send_from_directory
 from werkzeug.utils import secure_filename
-#from gevent.pywsgi import WSGIServer
 
-# Define a flask app
+# Define a Flask app
 app = Flask(__name__)
 
-# Model saved with Keras model.save()
-MODEL_PATH ='model_inception.h5'
+MODEL_PATH = 'D:\\Tomato-Leaf-Disease-Prediction\\model_vgg16.h5'
 
-# Load your trained model
-model = load_model(MODEL_PATH)
+try:
+    model = load_model(MODEL_PATH)
+except ValueError as e:
+    print(f"Error loading model: {e}")
 
+# Define your class labels
+CLASS_LABELS = [
+    "Tomato___Bacterial_spot",
+    "Tomato___Early_blight",
+    "Tomato___Late_blight",
+    "Tomato___Leaf_Mold",
+    "Tomato___Septoria_leaf_spot",
+    "Tomato___Spider_mites Two-spotted_spider_mite",
+    "Tomato___Target_Spot",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "Tomato___Tomato_mosaic_virus",
+    "Tomato___healthy"
+]
 
-
+# Define shortened names for user-friendly display
+SHORT_CLASS_LABELS = [
+    "Bacterial Spot",
+    "Early Blight",
+    "Late Blight",
+    "Leaf Mold",
+    "Septoria Spot",
+    "Spider Mites",
+    "Target Spot",
+    "Yellow Leaf Curl Virus",
+    "Tomato Mosaic Virus",
+    "Healthy"
+]
 
 def model_predict(img_path, model):
     print(img_path)
@@ -50,75 +56,49 @@ def model_predict(img_path, model):
 
     # Preprocessing the image
     x = image.img_to_array(img)
-    # x = np.true_divide(x, 255)
-    ## Scaling
-    x=x/255
+    x = x / 255.0  # Normalize the image to the range [0,1]
     x = np.expand_dims(x, axis=0)
-   
 
-    # Be careful how your trained model deals with the input
-    # otherwise, it won't make correct prediction!
-   # x = preprocess_input(x)
-
+    # Make predictions
     preds = model.predict(x)
-    preds=np.argmax(preds, axis=1)
-    if preds==0:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    elif preds==1:
-        preds="The Disease is Pepper__bell___healthy"
-    elif preds==2:
-        preds="The Disease is Potato___Early_blight"
-    elif preds==3:
-        preds="Te Disease is Potato___healthy"
-    elif preds==4:
-        preds="The Disease is Potato___Late_blight"
-    elif preds==5:
-        preds="The Disease is Tomato__Tomato_mosaic_virus"
-    elif preds==6:
-        preds="The Disease is Tomato__Tomato_YellowLeaf__Curl_Virus"
-    elif preds==7:
-        preds="The Disease is Tomato_Bacterial_spot"
-    elif preds==8:
-        preds="The Disease is Tomato_Early_blight"
-    elif preds==9:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    elif preds==10:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    elif preds==11:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    elif preds==12:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    elif preds==13:
-        preds="The Disease is Pepper__bell___Bacterial_spot"
-    
-    
-    return preds
+    preds = np.argmax(preds, axis=1)
 
+    # Map predictions to short class labels
+    result = SHORT_CLASS_LABELS[preds[0]] if preds.size > 0 else "Unknown Disease"
+    
+    print("\n\npreds: ", result)
+    return result
 
 @app.route('/', methods=['GET'])
 def index():
-    # Main page
     return render_template('index.html')
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory('uploads', filename)
 
-@app.route('/predict', methods=['GET', 'POST'])
+@app.route('/predict', methods=['POST','GET'])
 def upload():
     if request.method == 'POST':
-        # Get the file from post request
         f = request.files['file']
+        if not f:
+            return {'result': 'No file uploaded'}, 400
 
-        # Save the file to ./uploads
         basepath = os.path.dirname(__file__)
-        file_path = os.path.join(
-            basepath, 'uploads', secure_filename(f.filename))
+        uploads_path = os.path.join(basepath, 'uploads')
+        if not os.path.exists(uploads_path):
+            os.makedirs(uploads_path)  # Create uploads directory if it doesn't exist
+
+        file_path = os.path.join(uploads_path, secure_filename(f.filename))
         f.save(file_path)
 
         # Make prediction
         preds = model_predict(file_path, model)
-        result=preds
-        return result
+        
+        # Return both the prediction and image path
+        return {'result': preds, 'image_path': f.filename}
     return None
 
 
 if __name__ == '__main__':
-    app.run(port=5001,debug=True)
+    app.run(port=5001, debug=True)
